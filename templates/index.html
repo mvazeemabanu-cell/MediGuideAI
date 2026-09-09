@@ -1,0 +1,1965 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>MediGuide.AI — Find your way to care</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link href="https://fonts.googleapis.com/css2?family=Fraunces:opsz,wght@9..144,400;9..144,500;9..144,600;9..144,700&family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --teal: #6D4FE0;
+    --teal-dark: #4F35B8;
+    --teal-light: #EFEAFB;
+    --navy: #241C4E;
+    --bg: #F7F5FB;
+    --panel: #FFFFFF;
+    --ink: #201A33;
+    --ink-soft: #6B6480;
+    --line: #E5E1F2;
+    --alert: #C1443C;
+    --alert-bg: #FBEAE8;
+    --amber: #B5842A;
+    --amber-bg: #FBF3E3;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: 'Inter', sans-serif;
+    background: var(--bg);
+    color: var(--ink);
+    min-height: 100vh;
+  }
+
+  .topbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 20px 40px;
+    border-bottom: 1px solid var(--line);
+    background: var(--panel);
+  }
+
+  .brand {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+  }
+
+  .brand-mark {
+    width: 34px;
+    height: 34px;
+    border-radius: 9px;
+    background: var(--teal);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-family: 'Fraunces', serif;
+    font-weight: 600;
+  }
+
+  .brand-name {
+    font-family: 'Fraunces', serif;
+    font-size: 1.25rem;
+    font-weight: 600;
+  }
+
+  .restart-link {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    background: none;
+    border: 1px solid var(--line);
+    padding: 8px 16px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .restart-link:hover { background: var(--teal-light); color: var(--teal-dark); }
+
+  .lang-toggle { display: flex; gap: 6px; }
+  .lang-btn {
+    padding: 7px 14px;
+    border-radius: 7px;
+    border: 1px solid var(--line);
+    background: white;
+    font-family: inherit;
+    font-size: 0.8rem;
+    cursor: pointer;
+    color: var(--ink-soft);
+  }
+  .lang-btn.active { background: var(--teal); border-color: var(--teal); color: white; font-weight: 600; }
+
+  .stage-indicator {
+    display: flex;
+    justify-content: center;
+    gap: 10px;
+    padding: 24px 20px 0;
+  }
+
+  .stage-dot {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+
+  .stage-dot .dot {
+    width: 9px;
+    height: 9px;
+    border-radius: 50%;
+    background: var(--line);
+  }
+
+  .stage-dot.active .dot { background: var(--teal); }
+  .stage-dot.active { color: var(--ink); font-weight: 600; }
+  .stage-dot.complete .dot { background: var(--teal); }
+
+  .stage-line {
+    width: 30px;
+    height: 1px;
+    background: var(--line);
+    align-self: center;
+  }
+
+  .main-stage {
+    max-width: 720px;
+    margin: 0 auto;
+    padding: 40px 24px 80px;
+  }
+
+  /* ---------- Intake screen ---------- */
+  .intake-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 48px 40px;
+    text-align: center;
+  }
+
+  .intake-card h1 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.7rem;
+    font-weight: 600;
+    margin: 0 0 10px;
+  }
+
+  .intake-card p.sub {
+    color: var(--ink-soft);
+    font-size: 0.95rem;
+    margin: 0 0 32px;
+  }
+
+  .symptom-input-wrap {
+    position: relative;
+  }
+
+  textarea#symptomInput {
+    width: 100%;
+    min-height: 120px;
+    padding: 18px 56px 18px 18px;
+    border: 1.5px solid var(--line);
+    border-radius: 14px;
+    font-family: inherit;
+    font-size: 1rem;
+    resize: none;
+    background: #FAFBFA;
+  }
+
+  textarea#symptomInput:focus {
+    outline: none;
+    border-color: var(--teal);
+    background: white;
+  }
+
+  .mic-btn {
+    position: absolute;
+    right: 14px;
+    bottom: 14px;
+    width: 38px;
+    height: 38px;
+    border-radius: 50%;
+    background: var(--teal-light);
+    border: none;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    color: var(--teal-dark);
+  }
+  .mic-btn:hover { background: var(--teal); color: white; }
+  .mic-btn.recording { background: var(--alert); color: white; }
+
+  .start-btn {
+    margin-top: 20px;
+    padding: 14px 36px;
+    background: var(--teal);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.98rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .start-btn:hover { background: var(--teal-dark); }
+  .start-btn:disabled { background: #A9BDB4; cursor: not-allowed; }
+
+  .disclaimer-small {
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    margin-top: 22px;
+    line-height: 1.5;
+  }
+
+  /* ---------- Question screen ---------- */
+  .question-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 44px 40px;
+  }
+
+  .question-eyebrow {
+    font-size: 0.78rem;
+    color: var(--teal-dark);
+    font-weight: 600;
+    margin-bottom: 12px;
+  }
+
+  .question-ack {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    margin-bottom: 18px;
+    font-style: italic;
+  }
+
+  .question-text {
+    font-family: 'Fraunces', serif;
+    font-size: 1.35rem;
+    font-weight: 500;
+    margin-bottom: 28px;
+    line-height: 1.4;
+  }
+
+  input#answerInput {
+    width: 100%;
+    padding: 16px 18px;
+    border: 1.5px solid var(--line);
+    border-radius: 12px;
+    font-family: inherit;
+    font-size: 1rem;
+    background: #FAFBFA;
+  }
+  input#answerInput:focus { outline: none; border-color: var(--teal); background: white; }
+
+  .question-actions {
+    display: flex;
+    justify-content: flex-end;
+    margin-top: 20px;
+  }
+
+  .next-btn {
+    padding: 12px 28px;
+    background: var(--teal);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+  .next-btn:hover { background: var(--teal-dark); }
+  .next-btn:disabled { background: #A9BDB4; cursor: not-allowed; }
+
+  .thinking-note {
+    font-size: 0.85rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: 10px;
+  }
+
+  /* ---------- Dashboard screen ---------- */
+  .dash-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 16px;
+  }
+
+  .dash-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 18px;
+    padding: 26px;
+    animation: cardIn 0.45s ease backwards;
+  }
+
+  .dash-card:nth-child(1) { animation-delay: 0.02s; }
+  .dash-card:nth-child(2) { animation-delay: 0.08s; }
+  .dash-card:nth-child(3) { animation-delay: 0.14s; }
+  .dash-card:nth-child(4) { animation-delay: 0.20s; }
+  .dash-card:nth-child(5) { animation-delay: 0.26s; }
+
+  @keyframes cardIn {
+    from { opacity: 0; transform: translateY(10px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .dash-card.full { grid-column: 1 / -1; }
+
+  .card-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    margin-bottom: 18px;
+  }
+
+  .card-icon {
+    width: 38px;
+    height: 38px;
+    border-radius: 11px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+
+  .card-icon.teal { background: #EFEAFB; color: var(--teal-dark); }
+  .card-icon.amber { background: #FBF0DA; color: #9C6B12; }
+  .card-icon.coral { background: #FBE9E6; color: #B14C3F; }
+  .card-icon.indigo { background: #E7EAF7; color: #3C4A9C; }
+
+  .dash-card h3 {
+    font-family: 'Fraunces', serif;
+    font-weight: 500;
+    font-size: 1.05rem;
+    margin: 0;
+    color: var(--ink);
+  }
+
+  .urgency-hero {
+    grid-column: 1 / -1;
+    border-radius: 20px;
+    padding: 32px 36px;
+    display: flex;
+    align-items: center;
+    gap: 22px;
+    position: relative;
+    overflow: hidden;
+    animation: cardIn 0.4s ease;
+  }
+
+  .urgency-hero::after {
+    content: "";
+    position: absolute;
+    right: -40px;
+    top: -40px;
+    width: 160px;
+    height: 160px;
+    border-radius: 50%;
+    opacity: 0.5;
+  }
+
+  .urgency-hero.EMERGENCY { background: linear-gradient(135deg, #FBEAE8 0%, #FDF4F3 100%); }
+  .urgency-hero.EMERGENCY::after { background: #F2C6C1; }
+  .urgency-hero.URGENT { background: linear-gradient(135deg, #FBF3E3 0%, #FEF9EF 100%); }
+  .urgency-hero.URGENT::after { background: #F0D9A0; }
+  .urgency-hero.ROUTINE, .urgency-hero.LOW { background: linear-gradient(135deg, #EFEAFB 0%, #F7F5FB 100%); }
+  .urgency-hero.ROUTINE::after, .urgency-hero.LOW::after { background: #CDBFF0; }
+
+  .urgency-icon {
+    width: 58px;
+    height: 58px;
+    border-radius: 16px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    background: white;
+    z-index: 1;
+  }
+
+  .urgency-hero-text { z-index: 1; }
+
+  .urgency-hero-text h2 {
+    font-family: 'Fraunces', serif;
+    font-size: 1.5rem;
+    margin: 0 0 6px;
+    letter-spacing: -0.01em;
+  }
+  .urgency-hero.EMERGENCY h2, .urgency-hero.EMERGENCY .urgency-icon { color: var(--alert); }
+  .urgency-hero.URGENT h2, .urgency-hero.URGENT .urgency-icon { color: var(--amber); }
+  .urgency-hero.ROUTINE h2, .urgency-hero.ROUTINE .urgency-icon,
+  .urgency-hero.LOW h2, .urgency-hero.LOW .urgency-icon { color: var(--teal-dark); }
+
+  .urgency-hero-text p {
+    margin: 0;
+    font-size: 0.92rem;
+    color: var(--ink-soft);
+  }
+
+  .condition-list {
+    margin: 0;
+    padding-left: 18px;
+    font-size: 0.92rem;
+    line-height: 1.8;
+  }
+
+  .condition-note {
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    font-style: italic;
+    margin-top: 10px;
+  }
+
+  .specialty-pill {
+    display: inline-block;
+    background: var(--teal-light);
+    color: var(--teal-dark);
+    padding: 8px 16px;
+    border-radius: 20px;
+    font-weight: 600;
+    font-size: 0.95rem;
+  }
+
+  .summary-list { list-style: none; padding: 0; margin: 0; }
+  .summary-list li {
+    display: flex;
+    justify-content: space-between;
+    padding: 8px 0;
+    border-bottom: 1px solid var(--line);
+    font-size: 0.88rem;
+  }
+  .summary-list li:last-child { border-bottom: none; }
+
+  .value-with-delete { display: flex; align-items: center; gap: 8px; }
+  .row-delete-btn {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-size: 0.85rem;
+    width: 20px;
+    height: 20px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+  }
+  .row-delete-btn:hover { background: var(--alert-bg); color: var(--alert); }
+
+  .risk-gauge-wrap { margin-top: 14px; max-width: 320px; }
+  .risk-gauge-track {
+    width: 100%;
+    height: 8px;
+    background: rgba(0,0,0,0.08);
+    border-radius: 6px;
+    overflow: hidden;
+  }
+  .risk-gauge-fill {
+    height: 100%;
+    border-radius: 6px;
+    transition: width 0.5s ease;
+  }
+  .risk-gauge-fill.EMERGENCY { background: var(--alert); }
+  .risk-gauge-fill.URGENT { background: var(--amber); }
+  .risk-gauge-fill.ROUTINE, .risk-gauge-fill.LOW { background: var(--teal); }
+  .risk-gauge-label {
+    display: block;
+    font-size: 0.75rem;
+    color: var(--ink-soft);
+    margin-top: 6px;
+  }
+  .summary-list .label { color: var(--ink-soft); }
+  .summary-list .value { font-weight: 500; text-align: right; max-width: 60%; }
+
+  .hospital-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 12px;
+  }
+
+  .hospital-card {
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 18px 20px;
+    transition: box-shadow 0.2s ease, transform 0.2s ease;
+  }
+  .hospital-card:hover { box-shadow: 0 6px 18px rgba(22, 50, 79, 0.08); transform: translateY(-2px); }
+
+  .hospital-card .h-name { font-weight: 600; font-size: 0.95rem; margin-bottom: 6px; }
+  .hospital-card .h-meta { font-size: 0.8rem; color: var(--ink-soft); line-height: 1.65; margin-bottom: 12px; }
+  .hospital-card .h-actions { display: flex; gap: 8px; }
+  .h-btn {
+    flex: 1;
+    text-align: center;
+    padding: 9px 10px;
+    border-radius: 8px;
+    font-size: 0.78rem;
+    font-weight: 600;
+    text-decoration: none;
+  }
+  .h-btn.primary { background: var(--teal); color: white; }
+  .h-btn.primary:hover { background: var(--teal-dark); }
+  .h-btn.secondary { background: var(--teal-light); color: var(--teal-dark); }
+  .h-btn.secondary:hover { background: #DCD1F4; }
+  .emergency-flag {
+    display: inline-block;
+    color: var(--alert);
+    font-weight: 600;
+    font-size: 0.74rem;
+    background: var(--alert-bg);
+    padding: 3px 9px;
+    border-radius: 6px;
+  }
+
+  .remedy-card, .health-tip-card { border: none; }
+  .remedy-card { background: linear-gradient(135deg, #EFEAFB 0%, #F7F5FB 100%); }
+  .health-tip-card { background: linear-gradient(135deg, #FFF6E4 0%, #FFFBF2 100%); }
+  .remedy-card p, .health-tip-card p { margin: 0; font-size: 0.92rem; line-height: 1.65; color: var(--ink); }
+
+  .dashboard-footer {
+    text-align: center;
+    margin-top: 28px;
+    display: flex;
+    justify-content: center;
+    gap: 12px;
+  }
+
+  .new-assessment-btn {
+    padding: 12px 28px;
+    background: var(--navy);
+    color: white;
+    border: none;
+    border-radius: 10px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .secondary-footer-btn {
+    background: white;
+    color: var(--navy);
+    border: 1.5px solid var(--line);
+  }
+  .secondary-footer-btn:hover { background: var(--teal-light); border-color: var(--teal); }
+  }
+  .new-assessment-btn:hover { background: #0F2438; }
+
+  .nav-link-btn {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    padding: 6px 4px;
+  }
+  .nav-link-btn:hover { color: var(--teal-dark); }
+
+  .sos-btn {
+    background: var(--alert);
+    color: white;
+    border: none;
+    padding: 9px 18px;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.82rem;
+    cursor: pointer;
+    letter-spacing: 0.03em;
+  }
+  .sos-btn:hover { background: #A5372F; }
+
+  .sos-overlay {
+    position: fixed;
+    inset: 0;
+    background: rgba(20, 30, 25, 0.55);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 100;
+  }
+
+  .sos-modal {
+    background: white;
+    border-radius: 18px;
+    padding: 32px;
+    max-width: 380px;
+    width: 90%;
+    text-align: center;
+  }
+
+  .sos-modal h2 {
+    color: var(--alert);
+    font-family: 'Fraunces', serif;
+    margin: 0 0 6px;
+  }
+
+  .sos-modal p { color: var(--ink-soft); font-size: 0.88rem; margin-bottom: 22px; }
+
+  .sos-option {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 16px;
+    border: 1px solid var(--line);
+    border-radius: 10px;
+    margin-bottom: 10px;
+    text-decoration: none;
+    color: var(--ink);
+  }
+  .sos-option:hover { background: var(--alert-bg); border-color: var(--alert); }
+  .sos-option .sos-num { font-weight: 700; color: var(--alert); }
+
+  .sos-close {
+    margin-top: 8px;
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    font-family: inherit;
+    font-size: 0.85rem;
+    cursor: pointer;
+    text-decoration: underline;
+  }
+
+  .profile-form {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 14px;
+    text-align: left;
+  }
+  .profile-form label {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--ink-soft);
+  }
+  .profile-form input, .profile-form select {
+    padding: 11px 12px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.92rem;
+    color: var(--ink);
+  }
+  .profile-form input:focus, .profile-form select:focus { outline: none; border-color: var(--teal); }
+
+  .profile-chip-row {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+
+  .profile-chip {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    padding: 9px 14px;
+    border: 1.5px solid var(--line);
+    border-radius: 20px;
+    font-size: 0.85rem;
+    background: white;
+    cursor: pointer;
+  }
+
+  .profile-chip.active {
+    background: var(--teal-light);
+    border-color: var(--teal);
+    color: var(--teal-dark);
+    font-weight: 600;
+  }
+
+  .profile-chip-del {
+    background: none;
+    border: none;
+    color: var(--ink-soft);
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 0;
+  }
+  .profile-chip-del:hover { color: var(--alert); }
+
+  .profile-chip.add-new {
+    background: var(--navy);
+    color: white;
+    border-color: var(--navy);
+    font-weight: 600;
+  }
+  .profile-chip.add-new:hover { background: #150F35; }
+
+  .reminder-form select {
+    padding: 12px 10px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.9rem;
+    background: white;
+  }
+
+  .list-card {
+    background: var(--panel);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px;
+    margin-bottom: 14px;
+  }
+
+  .history-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 14px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .history-item:last-child { border-bottom: none; }
+  .history-item .h-date { font-size: 0.75rem; color: var(--ink-soft); }
+  .history-item .h-symptom { font-weight: 600; font-size: 0.92rem; }
+  .history-badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+  .history-badge.EMERGENCY { background: var(--alert-bg); color: var(--alert); }
+  .history-badge.URGENT { background: var(--amber-bg); color: var(--amber); }
+  .history-badge.ROUTINE, .history-badge.LOW { background: var(--teal-light); color: var(--teal-dark); }
+
+  .empty-note { color: var(--ink-soft); font-size: 0.9rem; text-align: center; padding: 20px 0; }
+
+  .reminder-form { display: flex; gap: 10px; margin-bottom: 20px; }
+  .reminder-form input {
+    padding: 12px 14px;
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    font-family: inherit;
+    font-size: 0.9rem;
+  }
+  .reminder-form input[name="medName"] { flex: 2; }
+  .reminder-form input[name="medTime"] { flex: 1; }
+  .reminder-form button {
+    padding: 12px 20px;
+    background: var(--teal);
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-family: inherit;
+    font-weight: 600;
+    cursor: pointer;
+  }
+
+  .reminder-item {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid var(--line);
+  }
+  .reminder-item:last-child { border-bottom: none; }
+  .reminder-time { color: var(--teal-dark); font-weight: 600; font-size: 0.85rem; }
+  .reminder-del { background: none; border: none; color: var(--alert); cursor: pointer; font-size: 0.8rem; }
+
+  .hidden { display: none !important; }
+
+  @media (max-width: 700px) {
+    .dash-grid { grid-template-columns: 1fr; }
+    .hospital-grid { grid-template-columns: 1fr; }
+    .topbar { padding: 16px 20px; }
+    .main-stage { padding: 24px 16px 60px; }
+  }
+</style>
+</head>
+<body>
+
+<div id="loginScreen" style="min-height:100vh; display:flex; align-items:center; justify-content:center; background:var(--bg);">
+  <div style="background:white; border-radius:18px; padding:44px 40px; max-width:380px; width:90%; text-align:center;">
+    <div style="width:44px; height:44px; border-radius:12px; background:var(--teal); color:white; display:flex; align-items:center; justify-content:center; font-family:'Fraunces',serif; font-weight:600; font-size:1.3rem; margin:0 auto 16px;">M</div>
+    <h1 id="loginTitle" style="font-family:'Fraunces',serif; font-size:1.4rem; margin:0 0 6px;">Welcome to MediGuide.AI</h1>
+    <p id="loginSub" style="color:var(--ink-soft); font-size:0.88rem; margin-bottom:26px;">Create an account to get started.</p>
+
+    <input type="text" id="loginName" placeholder="Your name" style="width:100%; padding:13px 16px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:0.95rem; margin-bottom:12px;">
+    <input type="password" id="loginPassword" placeholder="Password" style="width:100%; padding:13px 16px; border:1.5px solid var(--line); border-radius:10px; font-family:inherit; font-size:0.95rem; margin-bottom:18px;">
+
+    <button id="loginSubmitBtn" class="start-btn" style="width:100%;">Sign Up</button>
+    <p id="loginError" style="color:var(--alert); font-size:0.82rem; margin-top:12px; min-height:16px;"></p>
+    <p style="color:var(--ink-soft); font-size:0.78rem; margin-top:10px;">This is a local demo login — your details are stored only on this device, not on a server.</p>
+  </div>
+</div>
+
+<div id="mainApp" class="hidden">
+
+<div class="topbar">
+  <div class="brand">
+    <div class="brand-mark">M</div>
+    <div class="brand-name">MediGuide.AI</div>
+  </div>
+  <div style="display:flex; align-items:center; gap:14px;">
+    <button class="nav-link-btn" id="navProfile">Profile</button>
+    <button class="nav-link-btn" id="navHistory">History</button>
+    <button class="nav-link-btn" id="navReminders">Reminders</button>
+    <button class="nav-link-btn" id="navReport">Upload Report</button>
+    <div class="lang-toggle">
+      <button class="lang-btn active" id="langEn" data-lang="en">English</button>
+      <button class="lang-btn" id="langTa" data-lang="ta">தமிழ்</button>
+    </div>
+    <button class="restart-link" id="restartBtn">Start Over</button>
+    <button class="sos-btn" id="sosBtn">SOS</button>
+    <button class="restart-link" id="logoutBtn">Logout</button>
+  </div>
+</div>
+
+<div class="stage-indicator" id="stageIndicator">
+  <div class="stage-dot active" data-stage="intake"><span class="dot"></span>Symptoms</div>
+  <div class="stage-line"></div>
+  <div class="stage-dot" data-stage="questions"><span class="dot"></span>Questions</div>
+  <div class="stage-line"></div>
+  <div class="stage-dot" data-stage="done"><span class="dot"></span>Your Results</div>
+</div>
+
+<div class="main-stage">
+
+  <!-- SCREEN 0: Profile -->
+  <div id="viewProfile" class="hidden">
+    <div class="list-card">
+      <div id="profileListContainer"></div>
+      <h3 style="font-family:'Fraunces',serif; font-weight:500; margin-top:8px;" id="profileFormTitle">Add / Edit Person</h3>
+      <p style="color:var(--ink-soft); font-size:0.85rem; margin-top:-8px;">This helps us give more relevant guidance. All fields are optional and stored only on this device.</p>
+      <div class="profile-form">
+        <label>Name<input type="text" id="profName" placeholder="Their name"></label>
+        <label>Age<input type="number" id="profAge" placeholder="Years" min="0" max="120"></label>
+        <label>Gender
+          <select id="profGender">
+            <option value="">Prefer not to say</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </label>
+        <label>Weight (kg)<input type="number" id="profWeight" placeholder="e.g. 65"></label>
+        <label>Height (cm)<input type="number" id="profHeight" placeholder="e.g. 170"></label>
+        <label>City<input type="text" id="profCity" placeholder="Their city"></label>
+      </div>
+      <div id="bmiNote" class="empty-note" style="text-align:left; padding:8px 0;"></div>
+      <button class="start-btn" id="saveProfileBtn" style="margin-top:12px;">Save Profile</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 1: Symptom Intake -->
+  <div id="viewIntake" class="hidden">
+    <div class="intake-card">
+      <h1 id="intakeTitle">How are you feeling today?</h1>
+      <p class="sub" id="intakeSub">Describe your symptoms in your own words — type or use your voice.</p>
+      <div class="symptom-input-wrap">
+        <textarea id="symptomInput" placeholder="e.g. I have stomach pain since yesterday and I feel nauseous..."></textarea>
+        <button class="mic-btn" id="micBtn" title="Voice input">
+          <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 1a3 3 0 0 0-3 3v8a3 3 0 0 0 6 0V4a3 3 0 0 0-3-3z"/><path d="M19 10v2a7 7 0 0 1-14 0v-2"/><line x1="12" y1="19" x2="12" y2="23"/><line x1="8" y1="23" x2="16" y2="23"/></svg>
+        </button>
+      </div>
+      <button class="start-btn" id="startBtn">Start Assessment</button>
+      <p class="disclaimer-small">MediGuide.AI provides healthcare navigation support, not a medical diagnosis. In an emergency, contact local emergency services immediately.</p>
+    </div>
+  </div>
+
+  <!-- SCREEN 2: Follow-up Question -->
+  <div id="viewQuestion" class="hidden">
+    <div class="question-card">
+      <div class="question-eyebrow">Follow-up question</div>
+      <div class="question-ack" id="questionAck"></div>
+      <div class="question-text" id="questionText"></div>
+      <input type="text" id="answerInput" placeholder="Type your answer...">
+      <div class="question-actions">
+        <button class="next-btn" id="nextBtn">Next</button>
+      </div>
+      <div class="thinking-note hidden" id="thinkingNote">MediGuide is thinking...</div>
+    </div>
+  </div>
+
+  <!-- SCREEN 3: Dashboard -->
+  <div id="viewDashboard" class="hidden">
+    <div class="dash-grid" id="dashGrid"></div>
+    <div class="dashboard-footer">
+      <button class="new-assessment-btn secondary-footer-btn" id="downloadBtn">Download Summary</button>
+      <button class="new-assessment-btn" id="newAssessmentBtn">Start New Assessment</button>
+    </div>
+  </div>
+
+  <!-- SCREEN 4: History -->
+  <div id="viewHistory" class="hidden">
+    <div class="list-card">
+      <div style="display:flex; justify-content:space-between; align-items:center;">
+        <h3 id="historyTitle" style="font-family:'Fraunces',serif; font-weight:500; margin:0;">Your Past Assessments</h3>
+        <button class="reminder-del" id="clearHistoryBtn" style="border:1px solid var(--line); padding:7px 14px; border-radius:8px;">Clear All</button>
+      </div>
+      <div id="historyList" style="margin-top:16px;"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN 5: Reminders -->
+  <div id="viewReminders" class="hidden">
+    <div class="list-card">
+      <h3 style="font-family:'Fraunces',serif; font-weight:500; margin-top:0;">Medication Reminders</h3>
+      <div class="reminder-form">
+        <input type="text" name="medName" id="medName" placeholder="Medicine name">
+        <select id="medHour">
+          <option value="1">1</option><option value="2">2</option><option value="3">3</option><option value="4">4</option>
+          <option value="5">5</option><option value="6">6</option><option value="7">7</option><option value="8">8</option>
+          <option value="9">9</option><option value="10">10</option><option value="11">11</option><option value="12">12</option>
+        </select>
+        <select id="medMinute">
+          <option value="00">00</option><option value="15">15</option><option value="30">30</option><option value="45">45</option>
+        </select>
+        <select id="medPeriod">
+          <option value="AM">AM</option>
+          <option value="PM">PM</option>
+        </select>
+        <button id="addReminderBtn">Add</button>
+      </div>
+      <button class="reminder-del" id="testAlertBtn" style="margin-bottom:16px; border:1px solid var(--line); padding:8px 14px; border-radius:8px;">🔔 Test Alert Sound</button>
+      <div id="reminderList"></div>
+    </div>
+  </div>
+
+  <!-- SCREEN 6: Report Upload -->
+  <div id="viewReport" class="hidden">
+    <div class="list-card">
+      <h3 style="font-family:'Fraunces',serif; font-weight:500; margin-top:0;">Upload a Medical Report</h3>
+      <p style="color:var(--ink-soft); font-size:0.85rem; margin-top:-8px;">Upload a lab report, prescription photo, or scan summary (image or PDF). We'll summarize what it says in plain language — this is not a diagnosis.</p>
+      <input type="file" id="reportFile" accept=".pdf,.jpg,.jpeg,.png" style="margin:16px 0;">
+      <br>
+      <button class="start-btn" id="analyzeReportBtn">Analyze Report</button>
+      <div id="reportResult" style="margin-top:24px;"></div>
+    </div>
+  </div>
+
+</div>
+
+<div class="sos-overlay hidden" id="sosOverlay">
+  <div class="sos-modal">
+    <h2>Emergency SOS</h2>
+    <p>If this is a medical emergency, call for help right away.</p>
+    <a class="sos-option" href="tel:108"><span>Ambulance (India)</span><span class="sos-num">108</span></a>
+    <a class="sos-option" href="tel:112"><span>National Emergency</span><span class="sos-num">112</span></a>
+    <a class="sos-option" href="tel:100"><span>Police</span><span class="sos-num">100</span></a>
+    <button class="sos-close" id="sosClose">Close</button>
+  </div>
+</div>
+
+</div>
+
+<script>
+// ---------- Demo Login (local device only, not secure, multi-account) ----------
+function getAccounts() {
+  return JSON.parse(localStorage.getItem('mediguide_accounts') || '[]');
+}
+
+function saveAccounts(list) {
+  localStorage.setItem('mediguide_accounts', JSON.stringify(list));
+}
+
+function findAccount(name) {
+  return getAccounts().find(a => a.name.toLowerCase() === name.trim().toLowerCase());
+}
+
+function isLoggedIn() {
+  return !!localStorage.getItem('mediguide_current_user');
+}
+
+function getCurrentUser() {
+  return localStorage.getItem('mediguide_current_user') || '';
+}
+
+function showApp() {
+  document.getElementById('loginScreen').classList.add('hidden');
+  document.getElementById('mainApp').classList.remove('hidden');
+}
+
+function showLogin() {
+  document.getElementById('loginScreen').classList.remove('hidden');
+  document.getElementById('mainApp').classList.add('hidden');
+
+  document.getElementById('loginTitle').textContent = 'Welcome to MediGuide.AI';
+  document.getElementById('loginSub').textContent = 'Enter your name and password — new here? Just fill both in and we\'ll create your account.';
+  document.getElementById('loginSubmitBtn').textContent = 'Continue';
+  document.getElementById('loginName').disabled = false;
+  document.getElementById('loginName').value = '';
+  document.getElementById('loginPassword').value = '';
+  document.getElementById('loginError').textContent = '';
+}
+
+document.getElementById('loginSubmitBtn').addEventListener('click', () => {
+  const name = document.getElementById('loginName').value.trim();
+  const password = document.getElementById('loginPassword').value;
+  const errorEl = document.getElementById('loginError');
+  errorEl.textContent = '';
+
+  if (!name || !password) {
+    errorEl.textContent = 'Please enter your name and password.';
+    return;
+  }
+
+  const existing = findAccount(name);
+
+  if (existing) {
+    // Account exists -- verify password
+    if (password === existing.password) {
+      localStorage.setItem('mediguide_current_user', existing.name);
+      showApp();
+    } else {
+      errorEl.textContent = 'Incorrect password for this name. Please try again.';
+    }
+  } else {
+    // New name -- create account for them
+    const accounts = getAccounts();
+    accounts.push({ name, password });
+    saveAccounts(accounts);
+    localStorage.setItem('mediguide_current_user', name);
+    showApp();
+  }
+});
+
+document.getElementById('loginPassword').addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') document.getElementById('loginSubmitBtn').click();
+});
+
+document.getElementById('logoutBtn').addEventListener('click', () => {
+  localStorage.removeItem('mediguide_current_user');
+  showLogin();
+});
+
+// Check login status on page load
+if (isLoggedIn()) {
+  showApp();
+} else {
+  showLogin();
+}
+
+let currentLang = 'en';
+let pendingQuestion = null;
+
+const symptomInput = document.getElementById('symptomInput');
+const answerInput = document.getElementById('answerInput');
+const startBtn = document.getElementById('startBtn');
+const nextBtn = document.getElementById('nextBtn');
+const micBtn = document.getElementById('micBtn');
+
+const viewProfile = document.getElementById('viewProfile');
+const viewIntake = document.getElementById('viewIntake');
+const viewQuestion = document.getElementById('viewQuestion');
+const viewDashboard = document.getElementById('viewDashboard');
+const viewHistory = document.getElementById('viewHistory');
+const viewReminders = document.getElementById('viewReminders');
+const viewReport = document.getElementById('viewReport');
+const ALL_VIEWS = [viewProfile, viewIntake, viewQuestion, viewDashboard, viewHistory, viewReminders, viewReport];
+
+function showView(view) {
+  ALL_VIEWS.forEach(v => v.classList.add('hidden'));
+  view.classList.remove('hidden');
+}
+
+// ---------- Profile ----------
+// ---------- Multi-profile support (family members) ----------
+function getAllProfiles() {
+  return JSON.parse(localStorage.getItem('mediguide_profiles') || '[]');
+}
+
+function saveAllProfiles(list) {
+  localStorage.setItem('mediguide_profiles', JSON.stringify(list));
+}
+
+function getActiveProfileId() {
+  return localStorage.getItem('mediguide_active_profile_id') || '';
+}
+
+function setActiveProfileId(id) {
+  localStorage.setItem('mediguide_active_profile_id', id);
+}
+
+function getProfile() {
+  const profiles = getAllProfiles();
+  const activeId = getActiveProfileId();
+  return profiles.find(p => p.id === activeId) || {};
+}
+
+let editingProfileId = null;
+
+function loadProfileIntoForm(profile) {
+  const p = profile || {};
+  editingProfileId = p.id || null;
+  document.getElementById('profName').value = p.name || '';
+  document.getElementById('profAge').value = p.age || '';
+  document.getElementById('profGender').value = p.gender || '';
+  document.getElementById('profWeight').value = p.weight_kg || '';
+  document.getElementById('profHeight').value = p.height_cm || '';
+  document.getElementById('profCity').value = p.city || '';
+  updateBmiNote();
+}
+
+function renderProfileList() {
+  const profiles = getAllProfiles();
+  const activeId = getActiveProfileId();
+  const container = document.getElementById('profileListContainer');
+  if (!profiles.length) {
+    container.innerHTML = '';
+    return;
+  }
+  container.innerHTML = `
+    <div class="panel-section-label" style="margin-top:0;">Family Profiles</div>
+    <div class="profile-chip-row">
+      ${profiles.map(p => `
+        <div class="profile-chip ${p.id === activeId ? 'active' : ''}" data-id="${p.id}">
+          <span class="profile-chip-name">${p.name || 'Unnamed'}${p.age ? ' · ' + p.age : ''}</span>
+          <button class="profile-chip-del" data-del-id="${p.id}" title="Delete profile">✕</button>
+        </div>
+      `).join('')}
+      <button class="profile-chip add-new" id="addNewProfileBtn">+ Add Person</button>
+    </div>
+  `;
+
+  container.querySelectorAll('.profile-chip:not(.add-new)').forEach(chip => {
+    chip.addEventListener('click', (e) => {
+      if (e.target.classList.contains('profile-chip-del')) return;
+      const id = chip.dataset.id;
+      setActiveProfileId(id);
+      const p = getAllProfiles().find(pr => pr.id === id);
+      loadProfileIntoForm(p);
+      renderProfileList();
+    });
+  });
+
+  container.querySelectorAll('.profile-chip-del').forEach(btn => {
+    btn.addEventListener('click', (e) => {
+      e.stopPropagation();
+      if (!confirm('Delete this profile? Their saved history will remain but be unlinked.')) return;
+      let profiles = getAllProfiles();
+      profiles = profiles.filter(p => p.id !== btn.dataset.delId);
+      saveAllProfiles(profiles);
+      if (getActiveProfileId() === btn.dataset.delId) {
+        setActiveProfileId(profiles.length ? profiles[0].id : '');
+      }
+      renderProfileList();
+      loadProfileIntoForm(getProfile());
+    });
+  });
+
+  document.getElementById('addNewProfileBtn').addEventListener('click', () => {
+    editingProfileId = null;
+    loadProfileIntoForm({});
+  });
+}
+
+function updateBmiNote() {
+  const w = parseFloat(document.getElementById('profWeight').value);
+  const h = parseFloat(document.getElementById('profHeight').value);
+  const note = document.getElementById('bmiNote');
+  if (w && h) {
+    const bmi = (w / ((h / 100) ** 2)).toFixed(1);
+    note.textContent = `BMI: ${bmi}`;
+  } else {
+    note.textContent = '';
+  }
+}
+
+document.getElementById('profWeight').addEventListener('input', updateBmiNote);
+document.getElementById('profHeight').addEventListener('input', updateBmiNote);
+
+document.getElementById('saveProfileBtn').addEventListener('click', () => {
+  const name = document.getElementById('profName').value.trim();
+  const profileData = {
+    id: editingProfileId || ('p_' + Date.now()),
+    name: name,
+    age: document.getElementById('profAge').value,
+    gender: document.getElementById('profGender').value,
+    weight_kg: document.getElementById('profWeight').value,
+    height_cm: document.getElementById('profHeight').value,
+    city: document.getElementById('profCity').value.trim()
+  };
+
+  let profiles = getAllProfiles();
+  const existingIndex = profiles.findIndex(p => p.id === profileData.id);
+  if (existingIndex >= 0) profiles[existingIndex] = profileData;
+  else profiles.push(profileData);
+
+  saveAllProfiles(profiles);
+  setActiveProfileId(profileData.id);
+  showView(viewIntake);
+});
+
+document.getElementById('navReport').addEventListener('click', () => {
+  document.getElementById('reportResult').innerHTML = '';
+  showView(viewReport);
+});
+
+document.getElementById('analyzeReportBtn').addEventListener('click', async () => {
+  const fileInput = document.getElementById('reportFile');
+  const resultDiv = document.getElementById('reportResult');
+  if (!fileInput.files.length) { alert('Please choose a file first.'); return; }
+
+  const btn = document.getElementById('analyzeReportBtn');
+  btn.disabled = true;
+  btn.textContent = 'Analyzing...';
+  resultDiv.innerHTML = '';
+
+  const formData = new FormData();
+  formData.append('file', fileInput.files[0]);
+  formData.append('lang', currentLang);
+
+  try {
+    const res = await fetch('/api/analyze-report', { method: 'POST', body: formData });
+    const data = await res.json();
+
+    if (data.error) {
+      resultDiv.innerHTML = `<div class="empty-note">${data.error}</div>`;
+    } else {
+      let html = '';
+
+      if (data.overall_score_percent !== null && data.overall_score_percent !== undefined) {
+        const score = data.overall_score_percent;
+        const scoreColor = score >= 80 ? 'LOW' : score >= 50 ? 'ROUTINE' : 'URGENT';
+        html += `
+          <div class="urgency-hero ${scoreColor}" style="margin-bottom:16px;">
+            <div class="urgency-icon" style="font-family:'Fraunces',serif; font-weight:600; font-size:1.3rem;">${score}%</div>
+            <div class="urgency-hero-text">
+              <h2>${score >= 80 ? 'Mostly Normal' : score >= 50 ? 'Some Values Off-Range' : 'Several Values Off-Range'}</h2>
+              <p>${score}% of tested values are within their stated reference range.</p>
+            </div>
+          </div>
+        `;
+      }
+
+      html += `<div class="dash-card health-tip-card" style="margin-bottom:12px;"><h3 style="margin-bottom:10px;">Summary</h3><p>${data.summary || ''}</p></div>`;
+
+      if (data.findings && data.findings.length) {
+        const statusColor = { normal: '#2E9E6B', low: '#B5842A', high: '#C1443C', unclear: '#9C97AE' };
+        const statusLabel = { normal: 'Normal', low: 'Low', high: 'High', unclear: 'No range given' };
+        html += `<div class="dash-card"><h3 style="margin-bottom:14px;">Key Findings</h3>`;
+        data.findings.forEach(f => {
+          const color = statusColor[f.status] || statusColor.unclear;
+          const label = statusLabel[f.status] || statusLabel.unclear;
+          html += `
+            <div style="display:flex; align-items:flex-start; gap:10px; padding:10px 0; border-bottom:1px solid var(--line);">
+              <span style="width:10px; height:10px; border-radius:50%; background:${color}; margin-top:5px; flex-shrink:0;"></span>
+              <div style="flex:1;">
+                <div style="font-weight:600; font-size:0.9rem;">${f.name}: ${f.value} <span style="font-weight:500; color:${color}; font-size:0.78rem;">(${label})</span></div>
+                ${f.range ? `<div style="font-size:0.76rem; color:var(--ink-soft);">Reference: ${f.range}</div>` : ''}
+                ${f.note ? `<div style="font-size:0.8rem; color:var(--ink-soft); margin-top:2px;">${f.note}</div>` : ''}
+              </div>
+            </div>
+          `;
+        });
+        html += `</div>`;
+      }
+
+      // ---- Report Comparison: check for a previous report for this profile ----
+      const activeId = getActiveProfileId();
+      const allReports = JSON.parse(localStorage.getItem('mediguide_reports') || '[]');
+      const previousReport = allReports.find(r => r.profileId === activeId);
+
+      if (previousReport && data.findings && data.findings.length) {
+        const comparisonRows = [];
+        data.findings.forEach(current => {
+          const prevFinding = (previousReport.findings || []).find(
+            p => p.name.toLowerCase().trim() === current.name.toLowerCase().trim()
+          );
+          if (prevFinding) {
+            const prevNum = parseFloat(String(prevFinding.value).replace(/[^\d.]/g, ''));
+            const currNum = parseFloat(String(current.value).replace(/[^\d.]/g, ''));
+            let trend = '→ Same';
+            if (!isNaN(prevNum) && !isNaN(currNum)) {
+              if (currNum > prevNum) trend = '↑ Increased';
+              else if (currNum < prevNum) trend = '↓ Decreased';
+            }
+            comparisonRows.push({ name: current.name, prev: prevFinding.value, curr: current.value, trend });
+          }
+        });
+
+        if (comparisonRows.length) {
+          html = `
+            <div class="dash-card full" style="margin-bottom:12px;">
+              <h3 style="margin-bottom:6px;">Comparison to Previous Report</h3>
+              <div style="font-size:0.78rem; color:var(--ink-soft); margin-bottom:14px;">Previous report: ${previousReport.date}</div>
+              <table style="width:100%; border-collapse:collapse; font-size:0.85rem;">
+                <tr style="border-bottom:1px solid var(--line); text-align:left; color:var(--ink-soft); font-size:0.76rem;">
+                  <th style="padding:8px 4px;">Test</th><th style="padding:8px 4px;">Previous</th><th style="padding:8px 4px;">Current</th><th style="padding:8px 4px;">Trend</th>
+                </tr>
+                ${comparisonRows.map(r => `
+                  <tr style="border-bottom:1px solid var(--line);">
+                    <td style="padding:8px 4px; font-weight:600;">${r.name}</td>
+                    <td style="padding:8px 4px; color:var(--ink-soft);">${r.prev}</td>
+                    <td style="padding:8px 4px;">${r.curr}</td>
+                    <td style="padding:8px 4px; font-weight:600;">${r.trend}</td>
+                  </tr>
+                `).join('')}
+              </table>
+            </div>
+          ` + html;
+        }
+      }
+
+      // Save this report for future comparisons
+      allReports.unshift({
+        date: new Date().toLocaleString(),
+        profileId: activeId,
+        findings: data.findings || [],
+        summary: data.summary || ''
+      });
+      const filtered = [allReports[0], ...allReports.slice(1).filter(r => r.profileId !== activeId)];
+      localStorage.setItem('mediguide_reports', JSON.stringify(filtered.slice(0, 30)));
+
+      html += `<div class="condition-note" style="margin-top:12px;">${data.note || 'Please discuss this report with your doctor.'}</div>`;
+      resultDiv.innerHTML = html;
+    }
+  } catch (err) {
+    resultDiv.innerHTML = `<div class="empty-note">Connection error: ${err.message}</div>`;
+  } finally {
+    btn.disabled = false;
+    btn.textContent = 'Analyze Report';
+  }
+});
+
+document.getElementById('navProfile').addEventListener('click', () => {
+  renderProfileList();
+  loadProfileIntoForm(getProfile());
+  showView(viewProfile);
+});
+
+// On first load, ask for a profile if none saved yet; otherwise go straight to intake
+window.addEventListener('DOMContentLoaded', () => {
+  const profiles = getAllProfiles();
+  if (!profiles.length) {
+    renderProfileList();
+    loadProfileIntoForm({});
+    showView(viewProfile);
+  } else {
+    if (!getActiveProfileId()) setActiveProfileId(profiles[0].id);
+    showView(viewIntake);
+  }
+});
+const sosOverlay = document.getElementById('sosOverlay');
+document.getElementById('sosBtn').addEventListener('click', () => sosOverlay.classList.remove('hidden'));
+document.getElementById('sosClose').addEventListener('click', () => sosOverlay.classList.add('hidden'));
+
+// ---------- History (localStorage) ----------
+function saveToHistory(msg) {
+  const history = JSON.parse(localStorage.getItem('mediguide_history') || '[]');
+  const activeProfile = getProfile();
+  history.unshift({
+    date: new Date().toLocaleString(),
+    profileId: getActiveProfileId(),
+    profileName: activeProfile.name || 'Unnamed',
+    patient_state: msg.patient_state,
+    urgency_level: msg.urgency_level,
+    urgency_text: msg.urgency_text,
+    specialty: msg.specialty,
+    possible_conditions: msg.possible_conditions || []
+  });
+  localStorage.setItem('mediguide_history', JSON.stringify(history.slice(0, 60)));
+}
+
+function deleteHistoryItem(fullIndex) {
+  const history = JSON.parse(localStorage.getItem('mediguide_history') || '[]');
+  history.splice(fullIndex, 1);
+  localStorage.setItem('mediguide_history', JSON.stringify(history));
+  renderHistory();
+}
+
+function renderHistory() {
+  const allHistory = JSON.parse(localStorage.getItem('mediguide_history') || '[]');
+  const activeId = getActiveProfileId();
+  const activeProfile = getProfile();
+  const list = document.getElementById('historyList');
+  const titleEl = document.getElementById('historyTitle');
+  if (titleEl) titleEl.textContent = activeProfile.name ? `${activeProfile.name}'s Past Assessments` : 'Your Past Assessments';
+
+  // Keep original indices so delete works against the full stored array
+  const indexed = allHistory.map((h, i) => ({ ...h, _idx: i }));
+  const history = indexed.filter(h => h.profileId === activeId);
+
+  if (!history.length) {
+    list.innerHTML = '<div class="empty-note">No past assessments for this profile yet. Complete an assessment to see it here.</div>';
+    return;
+  }
+  list.innerHTML = history.map((h, i) => {
+    const s = h.patient_state || {};
+    const details = [
+      s.main_symptom ? `Symptom: ${s.main_symptom}` : null,
+      s.duration ? `Duration: ${s.duration}` : null,
+      s.severity ? `Severity: ${s.severity}` : null,
+      s.location_on_body ? `Location: ${s.location_on_body}` : null,
+      (s.associated_symptoms && s.associated_symptoms.length) ? `Other: ${s.associated_symptoms.join(', ')}` : null
+    ].filter(Boolean).join(' · ');
+
+    return `
+      <div class="history-item" style="flex-direction:column; align-items:stretch;">
+        <div style="display:flex; justify-content:space-between; align-items:center;">
+          <div>
+            <div class="h-symptom">${s.main_symptom || 'Unknown'}</div>
+            <div class="h-date">${h.date} &middot; ${h.specialty}</div>
+          </div>
+          <div style="display:flex; align-items:center; gap:10px;">
+            <span class="history-badge ${h.urgency_level}">${h.urgency_level}</span>
+            <button class="row-delete-btn" data-history-index="${h._idx}" title="Delete this entry">✕</button>
+          </div>
+        </div>
+        ${details ? `<div style="font-size:0.8rem; color:var(--ink-soft); margin-top:8px;">${details}</div>` : ''}
+        ${(h.possible_conditions && h.possible_conditions.length) ? `<div style="font-size:0.8rem; color:var(--ink-soft); margin-top:4px;">Considered: ${h.possible_conditions.join(', ')}</div>` : ''}
+      </div>
+    `;
+  }).join('');
+
+  list.querySelectorAll('.row-delete-btn').forEach(btn => {
+    btn.addEventListener('click', () => deleteHistoryItem(parseInt(btn.dataset.historyIndex)));
+  });
+}
+
+document.getElementById('navHistory').addEventListener('click', () => {
+  renderHistory();
+  showView(viewHistory);
+});
+
+document.getElementById('clearHistoryBtn').addEventListener('click', () => {
+  if (confirm('Delete all past assessments for this profile? This cannot be undone.')) {
+    const activeId = getActiveProfileId();
+    const history = JSON.parse(localStorage.getItem('mediguide_history') || '[]');
+    const remaining = history.filter(h => h.profileId !== activeId);
+    localStorage.setItem('mediguide_history', JSON.stringify(remaining));
+    renderHistory();
+  }
+});
+
+// ---------- Reminders (localStorage) ----------
+function formatTime12hr(time24) {
+  const [h, m] = time24.split(':').map(Number);
+  const period = h >= 12 ? 'PM' : 'AM';
+  const h12 = h % 12 === 0 ? 12 : h % 12;
+  return `${h12}:${String(m).padStart(2, '0')} ${period}`;
+}
+
+function getReminders() {
+  return JSON.parse(localStorage.getItem('mediguide_reminders') || '[]');
+}
+
+function renderReminders() {
+  const reminders = getReminders();
+  const list = document.getElementById('reminderList');
+  if (!reminders.length) {
+    list.innerHTML = '<div class="empty-note">No reminders yet. Add a medicine and time above.</div>';
+    return;
+  }
+  list.innerHTML = reminders.map((r, i) => `
+    <div class="reminder-item">
+      <div><strong>${r.name}</strong> <span class="reminder-time">${formatTime12hr(r.time)}</span></div>
+      <button class="reminder-del" data-index="${i}">Remove</button>
+    </div>
+  `).join('');
+  list.querySelectorAll('.reminder-del').forEach(btn => {
+    btn.addEventListener('click', () => {
+      const reminders = getReminders();
+      reminders.splice(parseInt(btn.dataset.index), 1);
+      localStorage.setItem('mediguide_reminders', JSON.stringify(reminders));
+      renderReminders();
+    });
+  });
+}
+
+document.getElementById('addReminderBtn').addEventListener('click', () => {
+  const name = document.getElementById('medName').value.trim();
+  const hour12 = parseInt(document.getElementById('medHour').value);
+  const minute = document.getElementById('medMinute').value;
+  const period = document.getElementById('medPeriod').value;
+  if (!name) return;
+
+  let hour24 = hour12 % 12;
+  if (period === 'PM') hour24 += 12;
+  const time24 = `${String(hour24).padStart(2, '0')}:${minute}`;
+
+  const reminders = getReminders();
+  reminders.push({ name, time: time24 });
+  localStorage.setItem('mediguide_reminders', JSON.stringify(reminders));
+  document.getElementById('medName').value = '';
+  renderReminders();
+});
+
+document.getElementById('navReminders').addEventListener('click', () => {
+  renderReminders();
+  showView(viewReminders);
+  if ('Notification' in window && Notification.permission === 'default') {
+    Notification.requestPermission();
+  }
+});
+
+document.getElementById('testAlertBtn').addEventListener('click', () => {
+  triggerReminderAlert({ name: 'Test Medicine' });
+});
+
+// ---------- Reminder alerts (works while this tab stays open) ----------
+function playBeep() {
+  try {
+    const ctx = new (window.AudioContext || window.webkitAudioContext)();
+    const beepCount = 7;
+    const gap = 0.5;
+    for (let i = 0; i < beepCount; i++) {
+      const delay = i * gap;
+      const osc = ctx.createOscillator();
+      const gainNode = ctx.createGain();
+      osc.type = 'sine';
+      osc.frequency.value = 880;
+      gainNode.gain.setValueAtTime(0.18, ctx.currentTime + delay);
+      gainNode.gain.exponentialRampToValueAtTime(0.001, ctx.currentTime + delay + 0.3);
+      osc.connect(gainNode);
+      gainNode.connect(ctx.destination);
+      osc.start(ctx.currentTime + delay);
+      osc.stop(ctx.currentTime + delay + 0.3);
+    }
+  } catch (e) { /* audio not supported, ignore */ }
+}
+
+function triggerReminderAlert(reminder) {
+  playBeep();
+  const timeLabel = reminder.time ? ` (${formatTime12hr(reminder.time)})` : '';
+  if ('Notification' in window && Notification.permission === 'granted') {
+    new Notification('Medicine Reminder', {
+      body: `Time to take: ${reminder.name}${timeLabel}`,
+      icon: ''
+    });
+  } else {
+    alert(`Reminder: Time to take ${reminder.name}${timeLabel}`);
+  }
+}
+
+let lastCheckedMinute = null;
+setInterval(() => {
+  const now = new Date();
+  const hh = String(now.getHours()).padStart(2, '0');
+  const mm = String(now.getMinutes()).padStart(2, '0');
+  const currentTime = `${hh}:${mm}`;
+
+  if (currentTime === lastCheckedMinute) return; // already checked this minute
+  lastCheckedMinute = currentTime;
+
+  const reminders = getReminders();
+  reminders.forEach(r => {
+    if (r.time === currentTime) triggerReminderAlert(r);
+  });
+}, 15000);
+
+const TEXT = {
+  en: {
+    title: "How are you feeling today?",
+    sub: "Describe your symptoms in your own words — type or use your voice.",
+    placeholder: "e.g. I have stomach pain since yesterday and I feel nauseous...",
+    answerPlaceholder: "Type your answer..."
+  },
+  ta: {
+    title: "இன்று உங்கள் உடல்நிலை எப்படி இருக்கிறது?",
+    sub: "உங்கள் அறிகுறிகளை உங்கள் சொந்த வார்த்தைகளில் விவரிக்கவும் — தட்டச்சு செய்யவும் அல்லது குரலைப் பயன்படுத்தவும்.",
+    placeholder: "எ.கா. நேற்று முதல் எனக்கு வயிற்று வலி மற்றும் குமட்டல் உள்ளது...",
+    answerPlaceholder: "உங்கள் பதிலை தட்டச்சு செய்யவும்..."
+  }
+};
+
+document.querySelectorAll('.lang-btn').forEach(btn => {
+  btn.addEventListener('click', () => {
+    document.querySelectorAll('.lang-btn').forEach(b => b.classList.remove('active'));
+    btn.classList.add('active');
+    currentLang = btn.dataset.lang;
+    const t = TEXT[currentLang];
+    document.getElementById('intakeTitle').textContent = t.title;
+    document.getElementById('intakeSub').textContent = t.sub;
+    symptomInput.placeholder = t.placeholder;
+    answerInput.placeholder = t.answerPlaceholder;
+  });
+});
+
+document.getElementById('restartBtn').addEventListener('click', () => location.reload());
+document.getElementById('newAssessmentBtn').addEventListener('click', () => location.reload());
+document.getElementById('downloadBtn').addEventListener('click', downloadSummary);
+
+function setStage(stage) {
+  document.querySelectorAll('.stage-dot').forEach(d => {
+    const order = ['intake', 'questions', 'done'];
+    const cur = order.indexOf(stage);
+    const dStage = order.indexOf(d.dataset.stage);
+    d.classList.remove('active', 'complete');
+    if (dStage < cur) d.classList.add('complete');
+    else if (dStage === cur) d.classList.add('active');
+  });
+}
+
+// ---------- Voice input (Web Speech API) ----------
+let recognizing = false;
+let recognition = null;
+if ('webkitSpeechRecognition' in window || 'SpeechRecognition' in window) {
+  const SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
+  recognition = new SpeechRecognition();
+  recognition.continuous = false;
+  recognition.interimResults = false;
+
+  recognition.onresult = (event) => {
+    const transcript = event.results[0][0].transcript;
+    if (document.activeElement === answerInput || !viewIntake.classList.contains('hidden')) {
+      symptomInput.value += (symptomInput.value ? ' ' : '') + transcript;
+    }
+  };
+  recognition.onend = () => { recognizing = false; micBtn.classList.remove('recording'); };
+}
+
+micBtn.addEventListener('click', () => {
+  if (!recognition) { alert('Voice input is not supported in this browser. Try Chrome.'); return; }
+  if (recognizing) { recognition.stop(); recognizing = false; micBtn.classList.remove('recording'); return; }
+  recognition.lang = currentLang === 'ta' ? 'ta-IN' : 'en-US';
+  recognition.start();
+  recognizing = true;
+  micBtn.classList.add('recording');
+});
+
+// ---------- API calls ----------
+async function sendToBackend(message) {
+  const controller = new AbortController();
+  const timeoutId = setTimeout(() => controller.abort(), 25000);
+  try {
+    const res = await fetch('/api/message', {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ message, lang: currentLang, profile: getProfile() }),
+      signal: controller.signal
+    });
+    clearTimeout(timeoutId);
+    if (!res.ok) {
+      throw new Error(`Server returned ${res.status}`);
+    }
+    return await res.json();
+  } catch (err) {
+    clearTimeout(timeoutId);
+    if (err.name === 'AbortError') {
+      throw new Error('Request took too long (25s) — the server may be stuck on a slow network call. Check the terminal for errors.');
+    }
+    throw err;
+  }
+}
+
+function handleResponse(data) {
+  data.messages.forEach(msg => {
+    if (msg.type === 'bot_question') {
+      pendingQuestion = msg.text;
+      document.getElementById('questionAck').textContent = msg.ack || '';
+      document.getElementById('questionText').textContent = msg.text;
+      answerInput.value = '';
+      showView(viewQuestion);
+      setStage('questions');
+      answerInput.focus();
+    } else if (msg.type === 'bot_text') {
+      // Minor informational message -- show briefly as the ack line if we're mid-question
+      document.getElementById('questionAck').textContent = msg.text;
+    } else if (msg.type === 'assessment') {
+      saveToHistory(msg);
+      renderDashboard(msg);
+      showView(viewDashboard);
+      setStage('done');
+    }
+  });
+}
+
+startBtn.addEventListener('click', async () => {
+  const text = symptomInput.value.trim();
+  if (!text) return;
+  startBtn.disabled = true;
+  startBtn.textContent = 'Analyzing...';
+  try {
+    const data = await sendToBackend(text);
+    handleResponse(data);
+  } catch (err) {
+    alert('Connection error: ' + err.message);
+  } finally {
+    startBtn.disabled = false;
+    startBtn.textContent = 'Start Assessment';
+  }
+});
+
+nextBtn.addEventListener('click', async () => {
+  const text = answerInput.value.trim();
+  if (!text) return;
+  nextBtn.disabled = true;
+  document.getElementById('thinkingNote').classList.remove('hidden');
+  try {
+    const data = await sendToBackend(text);
+    handleResponse(data);
+  } catch (err) {
+    alert('Connection error: ' + err.message);
+  } finally {
+    nextBtn.disabled = false;
+    document.getElementById('thinkingNote').classList.add('hidden');
+  }
+});
+
+answerInput.addEventListener('keydown', (e) => { if (e.key === 'Enter') nextBtn.click(); });
+
+let lastAssessment = null;
+
+const ICONS = {
+  summary: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="4" y="3" width="16" height="18" rx="2"/><line x1="8" y1="8" x2="16" y2="8"/><line x1="8" y1="12" x2="16" y2="12"/><line x1="8" y1="16" x2="12" y2="16"/></svg>',
+  conditions: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><line x1="12" y1="8" x2="12" y2="13"/><circle cx="12" cy="16.5" r="0.6" fill="currentColor"/></svg>',
+  hospital: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V7a2 2 0 0 1 2-2h12a2 2 0 0 1 2 2v14"/><path d="M9 21v-4h6v4"/><line x1="12" y1="7" x2="12" y2="13"/><line x1="9" y1="10" x2="15" y2="10"/></svg>',
+  remedy: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 2v4"/><path d="M12 18v4"/><path d="M4.9 4.9l2.8 2.8"/><path d="M16.3 16.3l2.8 2.8"/><path d="M2 12h4"/><path d="M18 12h4"/><path d="M4.9 19.1l2.8-2.8"/><path d="M16.3 7.7l2.8-2.8"/></svg>',
+  tip: '<svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 18h6"/><path d="M10 22h4"/><path d="M12 2a7 7 0 0 0-4 12.7c.5.4.8 1 .8 1.6V17h6.4v-.7c0-.6.3-1.2.8-1.6A7 7 0 0 0 12 2z"/></svg>'
+};
+
+function renderDashboard(msg) {
+  lastAssessment = msg;
+  const grid = document.getElementById('dashGrid');
+  let html = '';
+
+  const urgencyIcon = msg.urgency_level === 'EMERGENCY'
+    ? '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"/><line x1="12" y1="9" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg>'
+    : '<svg width="26" height="26" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><path d="M8 12l3 3 5-6"/></svg>';
+
+  html += `
+    <div class="urgency-hero ${msg.urgency_level}">
+      <div class="urgency-icon">${urgencyIcon}</div>
+      <div class="urgency-hero-text" style="flex:1;">
+        <h2>${msg.urgency_text.split('—')[0].trim()}</h2>
+        <p>${msg.urgency_text.split('—')[1] ? msg.urgency_text.split('—')[1].trim() : ''}</p>
+        <div class="risk-gauge-wrap">
+          <div class="risk-gauge-track"><div class="risk-gauge-fill ${msg.urgency_level}" style="width:${msg.risk_percent}%;"></div></div>
+          <span class="risk-gauge-label">${msg.risk_label} risk &middot; ${msg.risk_percent}%</span>
+        </div>
+      </div>
+    </div>
+  `;
+
+  // ---- Emergency Escalation: only shown when urgency is EMERGENCY ----
+  if (msg.urgency_level === 'EMERGENCY') {
+    const topHospital = msg.hospitals && msg.hospitals.length ? msg.hospitals[0] : null;
+    html += `
+      <div class="dash-card full" style="border:2px solid var(--alert); background:var(--alert-bg);">
+        <div class="card-header"><div class="card-icon" style="background:#F6D5D2; color:var(--alert);">🚨</div><h3 style="color:var(--alert);">Emergency Escalation</h3></div>
+        <div style="display:grid; grid-template-columns:1fr 1fr; gap:10px; margin-bottom:14px;">
+          <a class="h-btn primary" style="background:var(--alert); padding:12px;" href="tel:108">📞 Call Ambulance (108)</a>
+          ${topHospital ? `<a class="h-btn primary" style="background:var(--alert); padding:12px;" href="${topHospital.nav_link}" target="_blank">🗺️ Nearest Emergency Hospital</a>` : ''}
+        </div>
+        <div style="font-size:0.85rem; color:var(--ink); line-height:1.7;">
+          <strong>While help arrives:</strong> Stay calm and keep the person still and comfortable.
+          Note the time symptoms started. Do not give food or water unless advised.
+          Keep this summary ready to show medical staff.
+        </div>
+        <button class="h-btn secondary" style="margin-top:12px; width:100%;" onclick="downloadSummary()">📋 Copy/Download Patient Summary for Staff</button>
+      </div>
+    `;
+  }
+
+  // ---- AI Explainability: shows which factors drove the urgency decision ----
+  if (msg.urgency_factors && msg.urgency_factors.length) {
+    const contribColor = { high: 'var(--alert)', medium: 'var(--amber)', low: 'var(--ink-soft)' };
+    const contribBg = { high: 'var(--alert-bg)', medium: 'var(--amber-bg)', low: '#F0F0F5' };
+    html += `
+      <div class="dash-card full">
+        <div class="card-header"><div class="card-icon indigo">${ICONS.conditions}</div><h3>Why This Result? (AI Explainability)</h3></div>
+        <div style="display:flex; flex-direction:column; gap:8px;">
+          ${msg.urgency_factors.map(f => `
+            <div style="display:flex; justify-content:space-between; align-items:center; padding:10px 14px; background:${contribBg[f.contribution] || '#F5F5F5'}; border-radius:8px;">
+              <div>
+                <div style="font-weight:600; font-size:0.88rem;">${f.factor}: <span style="font-weight:500;">${f.value}</span></div>
+                <div style="font-size:0.76rem; color:var(--ink-soft); margin-top:2px;">${f.detail}</div>
+              </div>
+              <span style="font-size:0.72rem; font-weight:700; color:${contribColor[f.contribution] || 'var(--ink-soft)'}; text-transform:uppercase; flex-shrink:0; margin-left:10px;">${f.contribution}</span>
+            </div>
+          `).join('')}
+        </div>
+        ${msg.specialty_reason ? `<div class="condition-note" style="margin-top:12px;">Specialty logic: ${msg.specialty_reason}</div>` : ''}
+        <div class="condition-note" style="margin-top:6px;">This is rule-based logic (not a black box) — every factor above is directly checked from your answers.</div>
+      </div>
+    `;
+  }
+
+  const s = msg.patient_state;
+  const summaryRows = [
+    ['main_symptom', 'Symptom', s.main_symptom],
+    ['duration', 'Duration', s.duration],
+    ['severity', 'Severity', s.severity],
+    ['location_on_body', 'Location', s.location_on_body],
+    ['associated_symptoms', 'Other symptoms', (s.associated_symptoms && s.associated_symptoms.length) ? s.associated_symptoms.join(', ') : null]
+  ];
+  html += `
+    <div class="dash-card">
+      <div class="card-header"><div class="card-icon teal">${ICONS.summary}</div><h3>Symptom Summary</h3></div>
+      <ul class="summary-list">
+        ${summaryRows.filter(r => r[2]).map(([field, label, value]) => `
+          <li>
+            <span class="label">${label}</span>
+            <span class="value-with-delete">
+              <span class="value">${value}</span>
+              <button class="row-delete-btn" data-field="${field}" title="Remove and recalculate">✕</button>
+            </span>
+          </li>
+        `).join('')}
+      </ul>
+      <div class="condition-note" style="margin-top:10px;">Something wrong? Remove it and we'll recalculate your results.</div>
+    </div>
+  `;
+
+  html += `<div class="dash-card">`;
+  html += `<div class="card-header"><div class="card-icon indigo">${ICONS.conditions}</div><h3>Possible Conditions</h3></div>`;
+  if (msg.possible_conditions && msg.possible_conditions.length) {
+    html += `<ul class="condition-list">`;
+    msg.possible_conditions.forEach(c => html += `<li>${c}</li>`);
+    html += `</ul>`;
+    html += `<div class="condition-note">General information only — not a diagnosis.</div>`;
+  } else {
+    html += `<p style="color:var(--ink-soft); font-size:0.88rem;">Not enough information to suggest possibilities.</p>`;
+  }
+  html += `<div style="margin-top:16px;"><span class="specialty-pill">${msg.specialty}</span></div>`;
+  html += `</div>`;
+
+  html += `<div class="dash-card full">`;
+  html += `<div class="card-header"><div class="card-icon coral">${ICONS.hospital}</div><h3>Nearby Hospitals</h3></div>`;
+  if (!msg.city_has_data) {
+    html += `
+      <div class="empty-note" style="text-align:left; background:#FBF3E3; padding:14px 16px; border-radius:8px;">
+        We don't have hospital data for <strong>${msg.searched_city}</strong> in this prototype yet.
+        This demo currently covers Chennai, Coimbatore, Bengaluru, and Salem.
+        A full version would connect to a live hospital directory (e.g. Google Places API) to cover any city.
+      </div>
+    `;
+  } else if (!msg.hospitals.length) {
+    html += `<div class="empty-note">No matching hospitals found.</div>`;
+  } else {
+    html += `<div class="hospital-grid">`;
+    msg.hospitals.forEach(h => {
+      html += `
+        <div class="hospital-card">
+          <div class="h-name">${h.name}</div>
+          <div class="h-meta">
+            ${h.address}${h.distance_km !== null && h.distance_km !== undefined ? ' &middot; ' + h.distance_km + ' km away' : ''}<br>
+            ${h.specialties.join(', ')}<br>
+            ${h.emergency_available ? '<span class="emergency-flag">Emergency available</span>' : ''}
+          </div>
+          <div class="h-actions">
+            <a class="h-btn primary" href="${h.nav_link}" target="_blank" rel="noopener">Directions</a>
+            <a class="h-btn secondary" href="${h.call_link}">Call</a>
+          </div>
+        </div>
+      `;
+    });
+    html += `</div>`;
+  }
+  html += `</div>`;
+
+  if (msg.remedy) {
+    html += `
+      <div class="dash-card remedy-card full">
+        <div class="card-header"><div class="card-icon teal">${ICONS.remedy}</div><h3>While You Wait To Be Seen</h3></div>
+        <p>${msg.remedy}</p>
+      </div>
+    `;
+  }
+
+  if (msg.health_tip) {
+    html += `
+      <div class="dash-card health-tip-card full">
+        <div class="card-header"><div class="card-icon amber">${ICONS.tip}</div><h3>Health Tip</h3></div>
+        <p>${msg.health_tip}</p>
+      </div>
+    `;
+  }
+
+  if (msg.bmi_info) {
+    html += `
+      <div class="dash-card health-tip-card full">
+        <div class="card-header"><div class="card-icon amber">${ICONS.tip}</div><h3>BMI &amp; Lifestyle (${msg.bmi_info.bmi} &middot; ${msg.bmi_info.category})</h3></div>
+        <p>${msg.bmi_info.tip}</p>
+        <div class="condition-note" style="margin-top:8px;">We don't suggest specific tablets or supplements here — please consult a doctor for anything beyond general lifestyle guidance.</div>
+      </div>
+    `;
+  }
+
+  if (msg.doctor_questions && msg.doctor_questions.length) {
+    html += `
+      <div class="dash-card full">
+        <div class="card-header"><div class="card-icon teal">🩺</div><h3>Doctor Visit Preparation</h3></div>
+        <div style="font-size:0.85rem; color:var(--ink-soft); margin-bottom:12px;">Bring this to your appointment — a quick summary and questions worth asking.</div>
+        <div class="summary-list" style="margin-bottom:16px;">
+          ${s.main_symptom ? `<li style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--line);"><span class="label">Main symptom</span><span class="value">${s.main_symptom}</span></li>` : ''}
+          ${s.duration ? `<li style="display:flex; justify-content:space-between; padding:6px 0; border-bottom:1px solid var(--line);"><span class="label">Duration</span><span class="value">${s.duration}</span></li>` : ''}
+          <li style="display:flex; justify-content:space-between; padding:6px 0;"><span class="label">Suggested specialty</span><span class="value">${msg.specialty}</span></li>
+        </div>
+        <div class="panel-section-label">Questions worth asking</div>
+        <ul class="condition-list">
+          ${msg.doctor_questions.map(q => `<li>${q}</li>`).join('')}
+        </ul>
+      </div>
+    `;
+  }
+
+  grid.innerHTML = html;
+
+  grid.querySelectorAll('.row-delete-btn').forEach(btn => {
+    btn.addEventListener('click', async () => {
+      const field = btn.dataset.field;
+      const updatedState = { ...lastAssessment.patient_state };
+      if (field === 'associated_symptoms') updatedState[field] = [];
+      else updatedState[field] = null;
+
+      grid.style.opacity = '0.5';
+      try {
+        const res = await fetch('/api/recompute', {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({ patient_state: updatedState, lang: currentLang })
+        });
+        const data = await res.json();
+        renderDashboard(data.assessment);
+      } catch (err) {
+        alert('Could not recalculate: ' + err.message);
+        grid.style.opacity = '1';
+      }
+    });
+  });
+}
+
+function downloadSummary() {
+  if (!lastAssessment) return;
+  const m = lastAssessment;
+  const s = m.patient_state;
+  let text = `MediGuide.AI — Assessment Summary\n`;
+  text += `Generated: ${new Date().toLocaleString()}\n\n`;
+  text += `URGENCY: ${m.urgency_text}\n\n`;
+  text += `SYMPTOM DETAILS\n`;
+  if (s.main_symptom) text += `- Symptom: ${s.main_symptom}\n`;
+  if (s.duration) text += `- Duration: ${s.duration}\n`;
+  if (s.severity) text += `- Severity: ${s.severity}\n`;
+  if (s.location_on_body) text += `- Location: ${s.location_on_body}\n`;
+  if (s.associated_symptoms && s.associated_symptoms.length) text += `- Other symptoms: ${s.associated_symptoms.join(', ')}\n`;
+  text += `\nPOSSIBLE CONDITIONS (general info, not a diagnosis)\n`;
+  (m.possible_conditions || []).forEach(c => text += `- ${c}\n`);
+  text += `\nRECOMMENDED SPECIALTY: ${m.specialty}\n`;
+  text += `\nNEARBY HOSPITALS\n`;
+  (m.hospitals || []).forEach(h => {
+    text += `- ${h.name}, ${h.address} (${h.distance_km} km) — ${h.contact}\n`;
+  });
+  if (m.remedy) text += `\nHOME COMFORT TIP\n${m.remedy}\n`;
+  if (m.health_tip) text += `\nHEALTH TIP\n${m.health_tip}\n`;
+  if (m.doctor_questions && m.doctor_questions.length) {
+    text += `\nQUESTIONS TO ASK YOUR DOCTOR\n`;
+    m.doctor_questions.forEach(q => text += `- ${q}\n`);
+  }
+  text += `\n---\nThis is a decision-support summary, not a medical diagnosis.\n`;
+
+  const blob = new Blob([text], { type: 'text/plain' });
+  const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
+  a.href = url;
+  a.download = 'mediguide-summary.txt';
+  a.click();
+  URL.revokeObjectURL(url);
+}
+</script>
+
+</body>
+</html>
